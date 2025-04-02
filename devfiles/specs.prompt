@@ -1,0 +1,147 @@
+I want to implement the aplication specified in the following SPECS with your constant assitance.
+
+Where' should I start?
+
+### START OF SPECS ###
+
+#Local Accounting App Specifications
+
+Objective
+This application will enable a small business owner selling various products to manage:
+
+- Products sold
+- Outstanding client debts
+- Monthly business expenses (product/infrastructure purchases)
+- Revenue from product sales
+- Easy-to-generate customer account statements
+
+Note: Product inventory tracking is excluded from initial scope to reduce complexity.
+
+
+#Technologies
+
+- Next.js 15
+- App Router architecture
+- Minimal Tailwind CSS with postcss.config.mjs
+- JavaScript (not TypeScript)
+- API routes for file operations
+- Local JSONs files for storing the following data data:
+
+Invoice (a client purchase) {
+ Client
+ InvoiceStatus:  anulled, pending, partialy-paid, fully-paid
+ ProductsList: [ ProductEntry1 { name, cost, qty }, ProductEntry2, ...]
+}
+
+Clients {
+ id (auto-generated) 
+ creation_date (automatic)
+ name (mandatory)
+ invoices: [Invoice, Invoice2, Invoice3, ...] 
+ phone (optional)
+ other data (optional, string)
+}
+
+IngressInvoice (the company own purchases of prodcuts and infrastructure {
+ Provider (optional) 
+ ProductsList: [ ProductEntry1 { name, cost, qty }, ProductEntry2, ...]
+}
+
+Other JSON files as needed.
+
+
+# Application Pages
+
+[ 1. Home ]
+A simple landing page featuring four large icons in row:
+  - "New Invoice" - Invoice icon with plus sign
+  - "New Ingress" - Shelf with boxes icon and plus sign
+  - "Clients List" - Icon with silhouettes of people
+  - "Monthly Balance" - Economics graph icon
+
+[ 2. New Invoice ]
+A form page to create new sales invoices with the following form fields:
+ - Invoice ID (automatic, non-editable label)
+ - Client (editable input field with dropdown of existing clients)
+ - Client ID (automatic, non-editable label)
+ - New Client Button (for generating a client quickly if needed)
+ - Invoice Date (automatic, non-editable label)
+ - Invoice Table with the following columns:
+  - Product Name (editable input)
+  - Product Price (editable input)
+  - Product Quantity (editable input)
+  - Product Subtotal (automatic calculation: price × quantity)
+  - Delete button for each product row
+ - Invoice Total (automatic, non-editable label)
+ - Save Invoice Button
+ - A modal in the top-right of the screen that indicates with pale-green background if the invoice was correctly written to the JSON file or, in pale-red if someting failed.
+
+Requirements:
+- One client must be selected. Having least one product is required to save the invoice.
+- Client input field shows dropdown of existing clients when the user is typing.
+- Selecting existing client "loads" it and auto-fills Client ID
+- "New Client Button" registers new client in database with the name written in the client input and notifies the user with a small modal in the top-right of the screen that indicates with pale-green background if the client was correctly written to the JSON file or, in pale-red if someting failed.
+
+Navigation Of the invoice:
+The invoice has to be easy to navigate. The data has to be inputted with ease by the user.
+
+Enhanced form navigation using ENTER key:
+- Initial focus on Client input field
+- ENTER from Client field → focus to first Product Name
+- ENTER from Product Name → focus to Product Quantity
+- ENTER from Product Quantity → create new row, focus on new Product Name
+
+[ 3. New Ingress ]
+Similar to New Invoice page but for recording company purchases. The key Differences are:
+- Uses "Providers" instead of "Clients"
+- Provider field is optional (defaults to "Unknown Provider")
+- Otherwise identical structure and navigation to New Invoice
+
+4. Clients List
+Dashboard view of all clients and their debts.
+
+Features a list showing each client which has:
+- Client ID (small, grayed out)
+- Client Name
+- Receive Payment Input (numeric)
+- Receive Payment Button ("receives" the payment inputted in the Receive Payment Input. The Payment is substracted from the client's debt.)
+
+The list also has a field for searching a client by their name, a sorting for name (ABC) and a sorting by debt (from small to big or big to small).
+
+ <DEBT>
+    How is debt calculated?
+    The debt of a client is calculated using their invoices.
+    The total debt of a client is the sum of all the invoices with status "unpaid" or "partially-paid" that has their client ID on them.
+
+    Example: If a client has the following invoices under their ID:
+     - Invoice1: { total: 750, status: "fully-paid", paid_amount: 750 } // Debt +0 (750 - 750)
+     - Invoice2: { total: 200, status: "fully-paid", paid_amount: 200 } // Debt +0 (200 - 200)
+     - Invoice3: { total: 300, status: "partially-paid", paid_amount: 100 } // Debt +200 (300 - 100)
+     - Invoice4: { total: 300, status: "unpaid", paid_amount: 0 } // Debt +300 (300 - 0) 
+     TOTAL_DEBT =  500
+
+    How is a payment received and how it affects the client's debt.
+    When a payment is received through the Receive Payment Input the client's invoices are checked. All the invoices with status "fully-paid" are ignored. Then, the aplication must "expend" the payment received in the Receive Payment Input to fully paid the invoice as much as possible. It first checks if there is any "partially-paid" invoice and "tries to paid" until it reaches the total of that invoice. The paid_amount of that invoice must be updated with the money expended. Then, it continues to "expend" in the next invoices that are "partially-paid" until there are no more invoices with "partilly-paid" status or there is no more money. After that, it starts to expend money in the "unpaid" ones, again, until there are no more invoices with "unpaid" status or until there is no more left.
+
+ </DEBT>
+
+Each row has a "Plus Icon" that navigates to that client's Account Statement
+
+5. Client Account Statement
+Detailed view of a specific client's debt and paid invoices:
+
+Features the following:
+1. Prominently displayed total client debt
+2. Wwo tabs:
+  Tab1: List of "partially-paid" and "unpaid" invoices.
+  Tab2: List of "paid" invoices.
+3. A "Generate Ticket" that generates a ticket for the client so he/she can make the payment.
+The client ticket contains:
+- All current invoices with status of "partially-unpaid", the partial amount received for each invoice and the that each invoice generates.
+- All current invoices with status of "unpaid" and their debt. 
+
+[ 6. Monthly Balance ]
+Financial overview page showing business performance:
+(specs pending for this page)
+
+### END OF SPECS ###
